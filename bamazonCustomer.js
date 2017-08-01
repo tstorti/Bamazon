@@ -15,6 +15,7 @@ connection.connect(function(err){
     if (err) throw err;
     console.log("connected as id "+connection.threadId);
 
+    //loop to add dummy data
     // for(var i=11;i<12;i++){
     //     addRecord("product"+i,"department"+i,Math.floor(Math.random()*100+1),100);
     // }
@@ -23,16 +24,12 @@ connection.connect(function(err){
     
 });
 
-// var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
-//       connection.query(query, [answer.start, answer.end], 
-
 //function to add a new record to the products table
 function addRecord(name, department, price, stock){
     var query = "INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?);";
     
     connection.query(query, [name,department,price,stock], function(err, res) {
         if (err) throw err;
-        // console.log(res);
     });
 }
 
@@ -57,7 +54,7 @@ function buyPrompt(productArray){
         .prompt([
             {
                 type: "input",
-                message: "Which product would you like to buy?",
+                message: "Enter the ID of the product you would like to buy",
                 name: "buyID"
             },
         ])
@@ -78,37 +75,32 @@ function howManyPrompt(product){
             },
         ])
         .then(function(response) {
-            //amount of product in stock
-            console.log(product.quantity);
-            //amount user wants to buy
-            console.log(response.quantity);
 
             // 7. Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.  
-            if(product.quantity<response.quantity){
+            if(product.stock_quantity<response.quantity){
                 //    * If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
                 console.log("Insufficient quantity!");
+                console.log("There are only " + product.stock_quantity  + " in stock.");
+                console.log("Choose a vaild quantity");
+                howManyPrompt(product);
             }
             else{
-                //processOrder();
+                processOrder(product, response.quantity);
             }
         });
 }
 // 8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
 //    * This means updating the SQL database to reflect the remaining quantity.
-//    * Once the update goes through, show the customer the total cost of their purchase.
-function processOrder(){
-    var query = "";
-    var query = connection.query(query,function(err,res){
+function processOrder(product,purchaseQuantity){
+    var newStock = product.stock_quantity - purchaseQuantity;
+    var newSales = product.product_sales + purchaseQuantity*product.price;
+    var productID = product.item_id;
+    var query = "UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?";
+    var query = connection.query(query, [newStock, newSales, productID], function(err,res){
         if(err) throw err;
+        //    * Once the update goes through, show the customer the total cost of their purchase.
+        console.log("You have purchased " + purchaseQuantity +" of "+ product.product_name + " for $"+product.price*purchaseQuantity);
     });
+
 }
 
-function updateProduct(){
-    // UPDATE table_name
-    // SET column_name_1 = new_value_1, column_name_2 = new_value_2
-    // WHERE column_name = some_value
-    // var sql = "UPDATE products SET quantity = 3 WHERE id=4";
-    // var query = connection.query(sql,function(err,res){
-    //     if(err) throw err;
-    // });
-};
