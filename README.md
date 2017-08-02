@@ -3,17 +3,17 @@
 This is a command-line storefront app with customer, manager, and supervisor views.
 
 Customer interface is opened with **bamazoncustomer.js**:
-    *Allows user to purchase some quantity of any of the products available in the MySQL products database.
+    * Allows user to purchase some quantity of any of the products available in the MySQL products database.
 
 Manager interface is opened with **bamazonManager.js**:
-    *Allows user to view all products available in the MySQL products database with stock quantities.
-    *Allows user to view all products available in the MySQL products database with stock quantities less than 5.
-    *Allows user to add stock to a product.
-    *Allows user to add a new product.
+    * Allows user to view all products available in the MySQL products database with stock quantities.
+    * Allows user to view all products available in the MySQL products database with stock quantities less than 5.
+    * Allows user to add stock to a product.
+    * Allows user to add a new product.
 
 Supervisor interface is opened with **bamazonSupervisor.js**.
-    *Allows user to view profit by department (total sales - overhead costs).
-    *Allows user to add a new department,
+    * Allows user to view profit by department (total sales - overhead costs).
+    * Allows user to add a new department,
 
 Demo video available at [link to Demo!](https://drive.google.com/open?id=0Bxq14zPqWo3ncXdNWVlPYUZaRGM)
 
