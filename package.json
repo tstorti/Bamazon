@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tstorti/Bamazon#readme",
   "dependencies": {
+    "cli-table": "^0.3.1",
     "inquirer": "^3.2.1",
     "mysql": "^2.14.0"
   }

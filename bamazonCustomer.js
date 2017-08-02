@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var passwords = require("./passwords.js");
+var Table = require('cli-table');
 
 var connection = mysql.createConnection({
     host: "127.0.0.1",
@@ -35,15 +36,20 @@ function addRecord(name, department, price, stock){
 
 //Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
 function displaySales(){
+  
+    var productsTable = new Table({
+        head: ["product_id", "product_name", "price"], colWidths: [20, 20, 20]
+    });
+
     var query = "SELECT * FROM products";
-    
+
     connection.query(query, function(err, res) {
         if (err) throw err;
-        console.log("id / product_name / price");
-        console.log("-------------------------");
         for(i=0;i<res.length;i++){
-            console.log(res[i].item_id + " / " +res[i].product_name + " / " + res[i].price);
+            productsTable.push([res[i].item_id, res[i].product_name, res[i].price]);
         }
+        //output productss table
+        console.log(productsTable.toString());
         buyPrompt(res);
 
     });
@@ -59,8 +65,6 @@ function buyPrompt(productArray){
             },
         ])
         .then(function(response) {
-            console.log(response.buyID);
-            //console.log(productArray);
             howManyPrompt(productArray[response.buyID-1]);
         }); 
 }
@@ -100,7 +104,27 @@ function processOrder(product,purchaseQuantity){
         if(err) throw err;
         //    * Once the update goes through, show the customer the total cost of their purchase.
         console.log("You have purchased " + purchaseQuantity +" of "+ product.product_name + " for $"+product.price*purchaseQuantity);
+        newOrderPrompt();
     });
 
+}
+function newOrderPrompt(){
+     inquirer
+        .prompt([
+            {
+                type: "list",
+                message: "What would you like to do?",
+                choices: ["Place another order", "Quit"],
+                name: "menu"
+            },
+        ])
+        .then(function(response) {
+            if (response.menu ==="Quit"){
+                connection.destroy();
+            }
+            else{
+                displaySales();
+            }
+        }); 
 }
 

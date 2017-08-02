@@ -2,6 +2,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var passwords = require("./passwords.js");
+var Table = require('cli-table');
 
 var connection = mysql.createConnection({
     host: "127.0.0.1",
@@ -25,7 +26,7 @@ function managerPrompt(){
             {
                 type: "list",
                 message: "Select a menu action",
-                choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"],
+                choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Quit"],
                 name: "menu"
             },
         ])
@@ -40,8 +41,11 @@ function managerPrompt(){
             else if (response.menu === "Add to Inventory"){
                 addInventory();
             }
-            else {
+            else if (response.menu ==="Add New Product"){
                 addProduct();
+            }
+            else{
+                connection.destroy();
             }
             
         }); 
@@ -138,16 +142,18 @@ function addRecord(name, department, price, stock){
 
 //   * If a manager selects `View Products for Sale`, the app should list every available item: the item IDs, names, prices, and quantities.
 function displaySales(){
+    var productsTable = new Table({
+        head: ["product_id", "product_name", "price", "stock"], colWidths: [20, 20, 20, 20]
+    });
+    
     var query = "SELECT * FROM products";
     
     connection.query(query, function(err, res) {
         if (err) throw err;
-        console.log("id / product_name / price / stock");
-        console.log("-------------------------");
         for(i=0;i<res.length;i++){
-            console.log(res[i].item_id + " / " +res[i].product_name + " / " + res[i].price + " / "+ res[i].stock_quantity);
+            productsTable.push([res[i].item_id, res[i].product_name, "$"+res[i].price, res[i].stock_quantity]);
         }
-        console.log(" ");
+        console.log(productsTable.toString());
         managerPrompt();
 
     });
@@ -155,16 +161,18 @@ function displaySales(){
 
 //   * If a manager selects `View Low Inventory`, then it should list all items with an inventory count lower than five.
 function viewLowInventory(){
+    var productsTable = new Table({
+        head: ["product_id", "product_name", "price", "stock"], colWidths: [20, 20, 20, 20]
+    });
+    
     var query = "SELECT * FROM products WHERE stock_quantity < 5";
     
     connection.query(query, function(err, res) {
         if (err) throw err;
-        console.log("id / product_name / price");
-        console.log("-------------------------");
         for(i=0;i<res.length;i++){
-            console.log(res[i].item_id + " / " +res[i].product_name + " / " + res[i].price + " / "+ res[i].stock_quantity);
+            productsTable.push([res[i].item_id, res[i].product_name, "$"+res[i].price, res[i].stock_quantity]);
         }
-        console.log(" "); 
+        console.log(productsTable.toString()); 
         managerPrompt();
     });
 };
